@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:note_book/screen/note_screen/home_screen.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../sqflight/database_helper.dart';
@@ -67,9 +68,18 @@ class _InsertScreenState extends State<InsertScreen> {
                             foregroundColor: Colors.white),
                         onPressed: () {
                           insertData(
-                              title: titlecontroller.text.toString(),
-                              description:
-                                  decsriptioncontroller.text.toString());
+                                  title: titlecontroller.text.toString(),
+                                  description:
+                                      decsriptioncontroller.text.toString())
+                              .then(
+                            (value) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(),
+                                  ));
+                            },
+                          );
                         },
                         child: Text(
                           "Save",
@@ -88,10 +98,11 @@ class _InsertScreenState extends State<InsertScreen> {
 
 Future<void> insertData(
     {required String title, required String description}) async {
-  Database db = await DatabaseHelper.dbhelper();
+  Database db = await DatabaseHelper.dbHelper();
 
   db.rawInsert(
       "Insert into notes(title,description) values('$title','$description')");
 
   print("data successfully inserted...");
 }
+

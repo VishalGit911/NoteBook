@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:note_book/screen/splash_screen.dart';
-import 'package:note_book/sqflight/database_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
 
   runApp(const MyApp());
 }

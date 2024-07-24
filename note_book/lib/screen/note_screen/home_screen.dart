@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:note_book/screen/note_screen/insert_screen.dart';
+import 'package:note_book/sqflight/database_helper.dart';
+import 'package:sqflite/sqflite.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,7 +11,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    getdata();
+    super.initState();
+  }
 
+  List<Map<String, dynamic>> newlist = [];
+
+  Future<Database> getdata() async {
+    Database db = await DatabaseHelper.dbHelper();
+    newlist = await db.rawQuery("SELECT * FROM notes");
+
+    return db;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,37 +35,56 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Card(
-              color: Colors.deepPurple.shade100,
-              child: ListTile(
-                title: Text(
-                  "Flutter Lecture",
-                  style: TextStyle(color: Colors.black, fontSize: 20),
-                ),
-                subtitle: Text(
-                  "Data Base",
-                  style: TextStyle(color: Colors.black, fontSize: 15),
-                ),
-                trailing: Icon(Icons.delete),
-              ),
-            ),
-          );
+      body: FutureBuilder(
+        future: getdata(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}"),
+            );
+          } else if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: newlist.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Card(
+                    color: Colors.deepPurple.shade100,
+                    child: ListTile(
+                      title: Text(
+                        newlist[index]["title"],
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      ),
+                      subtitle: Text(
+                        newlist[index]["description"],
+                        style: TextStyle(color: Colors.black, fontSize: 15),
+                      ),
+                      trailing: Icon(Icons.delete),
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            return Center(child: Container());
+          }
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => InsertScreen(),
-              ));
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => InsertScreen(),
+            ),
+            (route) => false,
+          );
         },
         label: Text("Add"),
         icon: Icon(Icons.add),
