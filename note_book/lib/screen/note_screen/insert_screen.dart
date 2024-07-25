@@ -105,4 +105,3 @@ Future<void> insertData(
 
   print("data successfully inserted...");
 }
-

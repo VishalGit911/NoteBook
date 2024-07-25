@@ -26,6 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return db;
   }
 
+  Future<void> deletedata(String title) async {
+    Database db = await DatabaseHelper.dbHelper();
+    db.delete("notes", where: "title= ?", whereArgs: [title]);
+
+    newlist = await db.rawQuery("SELECT * FROM notes");
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,8 +61,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Card(
-                    color: Colors.deepPurple.shade100,
+                    shadowColor: Colors.deepPurple,
+                    elevation: 8,
+                    color: Colors.white,
                     child: ListTile(
+                      // leading: CircleAvatar(
+                      //   backgroundColor: Colors.deepPurple.shade500,
+                      //   foregroundColor: Colors.white,
+                      //   child: Text(newlist[index]["id"].toString()),
+                      // ),
                       title: Text(
                         newlist[index]["title"],
                         style: TextStyle(color: Colors.black, fontSize: 20),
@@ -63,7 +78,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         newlist[index]["description"],
                         style: TextStyle(color: Colors.black, fontSize: 15),
                       ),
-                      trailing: Icon(Icons.delete),
+                      trailing: IconButton(
+                          onPressed: () {
+                            deletedata(newlist[index]["title"]);
+                          },
+                          icon: Icon(Icons.delete)),
                     ),
                   ),
                 );
