@@ -9,7 +9,7 @@ class DatabaseHelper {
       join(await getDatabasesPath(), 'NotBook.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE notes(id INTEGER  PRIMARY KEY AUTOINCREMENT , title TEXT, description TEXT)',
+          'CREATE TABLE notes(id INTEGER  PRIMARY KEY AUTOINCREMENT , title TEXT, description TEXT,date TEXT)',
         );
       },
       version: 1,
@@ -17,6 +17,4 @@ class DatabaseHelper {
 
     return database;
   }
-
 }
-

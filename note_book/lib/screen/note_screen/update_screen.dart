@@ -1,38 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:note_book/screen/note_screen/home_screen.dart';
+import 'package:note_book/sqflight/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../sqflight/database_helper.dart';
+class UpdateScreen extends StatefulWidget {
+  final String title;
+  final String decsriprion;
+  final int id;
 
-class InsertScreen extends StatefulWidget {
-  const InsertScreen({super.key});
+  UpdateScreen(
+      {super.key,
+      required this.title,
+      required this.decsriprion,
+      required this.id});
 
   @override
-  State<InsertScreen> createState() => _InsertScreenState();
+  State<UpdateScreen> createState() => _UpdateScreenState();
 }
 
-class _InsertScreenState extends State<InsertScreen> {
-  @override
+class _UpdateScreenState extends State<UpdateScreen> {
   void initState() {
+    titlecontroller.text = widget.title;
+    decsriptioncontroller.text = widget.decsriprion;
+    upadateid = widget.id;
+
     DateTime now = DateTime.now();
     String currentDate = '${now.day}/${now.month}/${now.year}';
     datecontoller.text = currentDate;
+
     super.initState();
   }
+
+  late int upadateid;
 
   final titlecontroller = TextEditingController();
   final decsriptioncontroller = TextEditingController();
   final datecontoller = TextEditingController();
 
+  Future<void> updatedate(
+      {required int id,
+      required String title,
+      required String decsriprion}) async {
+    Database db = await DatabaseHelper.dbHelper();
+
+    await db.rawUpdate(
+      "UPDATE notes SET title = '$title', description = '$decsriprion' WHERE id = '$upadateid'",
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.deepPurple.shade500,
-        title: Text("Add Notes"),
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(18.0),
         child: SingleChildScrollView(
@@ -109,17 +127,14 @@ class _InsertScreenState extends State<InsertScreen> {
                             backgroundColor: Colors.deepPurple.shade500,
                             foregroundColor: Colors.white),
                         onPressed: () {
-                          insertData(
-                            title: titlecontroller.text.toString(),
-                            description: decsriptioncontroller.text.toString(),
-                            date: datecontoller.text.toString(),
-                          ).then(
+                          updatedate(
+                                  id: upadateid,
+                                  title: titlecontroller.text.toString(),
+                                  decsriprion:
+                                      decsriptioncontroller.text.toString())
+                              .then(
                             (value) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(),
-                                  ));
+                              Navigator.pop(context);
                             },
                           );
                         },
@@ -136,19 +151,4 @@ class _InsertScreenState extends State<InsertScreen> {
       ),
     );
   }
-}
-
-Future<void> insertData({
-  required String title,
-  required String description,
-  required String date,
-}) async {
-  Database db = await DatabaseHelper.dbHelper();
-
-  await db.rawInsert(
-    "INSERT INTO notes (title, description, date) VALUES (?, ?, ?)",
-    [title, description, date],
-  );
-
-  print("Data successfully inserted...");
 }

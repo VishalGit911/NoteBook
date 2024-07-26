@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_book/screen/note_screen/insert_screen.dart';
+import 'package:note_book/screen/note_screen/update_screen.dart';
 import 'package:note_book/sqflight/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -55,38 +56,103 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text("Error: ${snapshot.error}"),
             );
           } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: newlist.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Card(
-                    shadowColor: Colors.deepPurple,
-                    elevation: 8,
-                    color: Colors.white,
-                    child: ListTile(
-                      // leading: CircleAvatar(
-                      //   backgroundColor: Colors.deepPurple.shade500,
-                      //   foregroundColor: Colors.white,
-                      //   child: Text(newlist[index]["id"].toString()),
-                      // ),
-                      title: Text(
-                        newlist[index]["title"],
-                        style: TextStyle(color: Colors.black, fontSize: 20),
+            return Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            hintText: "Search note",
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15))),
                       ),
-                      subtitle: Text(
-                        newlist[index]["description"],
-                        style: TextStyle(color: Colors.black, fontSize: 15),
-                      ),
-                      trailing: IconButton(
-                          onPressed: () {
-                            deletedata(newlist[index]["title"]);
-                          },
-                          icon: Icon(Icons.delete)),
                     ),
                   ),
-                );
-              },
+                  Expanded(
+                    flex: 9,
+                    child: ListView.builder(
+                      itemCount: newlist.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                              top: 3, left: 10, right: 10, bottom: 5),
+                          child: Card(
+                            shadowColor: Colors.black,
+                            elevation: 8,
+                            color: Colors.grey.shade200,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor:
+                                          Colors.deepPurple.shade500,
+                                      foregroundColor: Colors.white,
+                                      child: Text("${index + 1}"),
+                                    ),
+                                    title: Text(
+                                      newlist[index]["title"],
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 20),
+                                    ),
+                                    subtitle: Text(
+                                      newlist[index]["description"],
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 15),
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: Colors.grey,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(newlist[index]["date"].toString()),
+                                      IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      UpdateScreen(
+                                                    title: newlist[index]
+                                                        ["title"],
+                                                    decsriprion: newlist[index]
+                                                        ["description"],
+                                                    id: newlist[index]["id"],
+                                                  ),
+                                                )).then(
+                                              (value) {
+                                                setState(() {});
+                                              },
+                                            );
+                                          },
+                                          icon: Icon(Icons.edit)),
+                                      IconButton(
+                                          onPressed: () {
+                                            deletedata(newlist[index]["title"]);
+                                          },
+                                          icon: Icon(Icons.delete))
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           } else {
             return Center(child: Container());
@@ -97,12 +163,15 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
         onPressed: () {
-          Navigator.pushAndRemoveUntil(
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => InsertScreen(),
             ),
-            (route) => false,
+          ).then(
+            (value) {
+              setState(() {});
+            },
           );
         },
         label: Text("Add"),
