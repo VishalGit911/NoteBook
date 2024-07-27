@@ -42,10 +42,11 @@ class _InsertScreenState extends State<InsertScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
+                  style: TextStyle(fontSize: 20),
                   controller: titlecontroller,
                   decoration: InputDecoration(
                       hintStyle: TextStyle(
-                        fontSize: 25,
+                        fontSize: 22,
                       ),
                       hintText: "Title",
                       border: OutlineInputBorder(
@@ -55,12 +56,13 @@ class _InsertScreenState extends State<InsertScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
+                  style: TextStyle(fontSize: 20),
                   controller: decsriptioncontroller,
                   maxLines: 5,
                   decoration: InputDecoration(
                     hintText: "Notes",
                     hintStyle: TextStyle(
-                      fontSize: 25,
+                      fontSize: 22,
                     ),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -115,11 +117,7 @@ class _InsertScreenState extends State<InsertScreen> {
                             date: datecontoller.text.toString(),
                           ).then(
                             (value) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomeScreen(),
-                                  ));
+                              Navigator.pop(context);
                             },
                           );
                         },

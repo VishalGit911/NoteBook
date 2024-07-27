@@ -16,14 +16,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     getdata();
     super.initState();
+searchController.addListener(searchQuery());
   }
 
   List<Map<String, dynamic>> newlist = [];
+  List<Map<String, dynamic>> filteredList = [];
 
   Future<Database> getdata() async {
     Database db = await DatabaseHelper.dbHelper();
     newlist = await db.rawQuery("SELECT * FROM notes");
 
+    filteredList = newlist;
     return db;
   }
 
@@ -33,6 +36,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     newlist = await db.rawQuery("SELECT * FROM notes");
     setState(() {});
+  }
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
+  void serachquery(String query) {
+    String query = searchController.text.toLowerCase();
+    searchQuery = query;
+    filteredList = newlist
+        .where((note) =>
+            note["title"].toLowerCase().contains(query.toLowerCase()) ||
+            note["date"].toString().contains(query))
+        .toList();
   }
 
   @override
@@ -61,16 +75,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               child: Column(
                 children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                            hintText: "Search note",
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15))),
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextFormField(
+                      onChanged: (value) => serachquery(value),
+                      decoration: InputDecoration(
+                          hintText: "Search note",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15))),
                     ),
                   ),
                   Expanded(
@@ -98,14 +111,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Text("${index + 1}"),
                                     ),
                                     title: Text(
-                                      newlist[index]["title"],
+                                      filteredList[index]["title"],
                                       style: TextStyle(
-                                          color: Colors.black, fontSize: 20),
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500),
                                     ),
                                     subtitle: Text(
-                                      newlist[index]["description"],
+                                      filteredList[index]["description"],
+                                      maxLines: 1,
                                       style: TextStyle(
-                                          color: Colors.black, fontSize: 15),
+                                          color: Colors.black, fontSize: 16),
                                     ),
                                   ),
                                   Divider(
@@ -115,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      Text(newlist[index]["date"].toString()),
+                                      Text(
+                                        filteredList[index]["date"].toString(),
+                                        style: TextStyle(fontSize: 18),
+                                      ),
                                       IconButton(
                                           onPressed: () {
                                             Navigator.push(
@@ -123,11 +142,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       UpdateScreen(
-                                                    title: newlist[index]
+                                                    title: filteredList[index]
                                                         ["title"],
-                                                    decsriprion: newlist[index]
-                                                        ["description"],
-                                                    id: newlist[index]["id"],
+                                                    decsriprion:
+                                                        filteredList[index]
+                                                            ["description"],
+                                                    id: filteredList[index]
+                                                        ["id"],
                                                   ),
                                                 )).then(
                                               (value) {
@@ -138,7 +159,65 @@ class _HomeScreenState extends State<HomeScreen> {
                                           icon: Icon(Icons.edit)),
                                       IconButton(
                                           onPressed: () {
-                                            deletedata(newlist[index]["title"]);
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: Text("Delete Notes"),
+                                                  content: Text(
+                                                    "Are you sure?",
+                                                    style:
+                                                        TextStyle(fontSize: 18),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: Text("Cancel")),
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          deletedata(
+                                                                  filteredList[
+                                                                          index]
+                                                                      ["title"])
+                                                              .then(
+                                                            (value) {
+                                                              SnackBar snack =
+                                                                  SnackBar(
+                                                                      backgroundColor: Colors
+                                                                          .deepPurple
+                                                                          .shade500,
+                                                                      margin: EdgeInsets
+                                                                          .all(
+                                                                              5),
+                                                                      behavior:
+                                                                          SnackBarBehavior
+                                                                              .floating,
+                                                                      content:
+                                                                          Text(
+                                                                        "Notes delete successfully",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.white),
+                                                                      ));
+                                                              ScaffoldMessenger
+                                                                      .of(
+                                                                          context)
+                                                                  .showSnackBar(
+                                                                      snack);
+
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          );
+                                                        },
+                                                        child: Text("Ok"))
+                                                  ],
+                                                );
+                                              },
+                                            );
                                           },
                                           icon: Icon(Icons.delete))
                                     ],

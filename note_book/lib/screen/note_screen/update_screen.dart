@@ -26,7 +26,6 @@ class _UpdateScreenState extends State<UpdateScreen> {
     DateTime now = DateTime.now();
     String currentDate = '${now.day}/${now.month}/${now.year}';
     datecontoller.text = currentDate;
-
     super.initState();
   }
 
@@ -36,14 +35,16 @@ class _UpdateScreenState extends State<UpdateScreen> {
   final decsriptioncontroller = TextEditingController();
   final datecontoller = TextEditingController();
 
-  Future<void> updatedate(
-      {required int id,
-      required String title,
-      required String decsriprion}) async {
+  Future<void> updatedate({
+    required int id,
+    required String title,
+    required String decsriprion,
+    required String date,
+  }) async {
     Database db = await DatabaseHelper.dbHelper();
 
     await db.rawUpdate(
-      "UPDATE notes SET title = '$title', description = '$decsriprion' WHERE id = '$upadateid'",
+      "UPDATE notes SET title = '$title', description = '$decsriprion', date = '$date'  WHERE id = '$upadateid'",
     );
   }
 
@@ -131,7 +132,8 @@ class _UpdateScreenState extends State<UpdateScreen> {
                                   id: upadateid,
                                   title: titlecontroller.text.toString(),
                                   decsriprion:
-                                      decsriptioncontroller.text.toString())
+                                      decsriptioncontroller.text.toString(),
+                                  date: datecontoller.text.toString())
                               .then(
                             (value) {
                               Navigator.pop(context);
