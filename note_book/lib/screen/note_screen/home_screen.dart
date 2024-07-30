@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:note_book/screen/note_screen/insert_screen.dart';
 import 'package:note_book/screen/note_screen/update_screen.dart';
+import 'package:note_book/screen/note_screen/view_screen.dart';
 import 'package:note_book/sqflight/database_helper.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:sqflite/sqflite.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,9 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
       filteredList = newlist.where((note) {
         final titleLower = note["title"].toLowerCase();
         final descriptionLower = note["description"].toLowerCase();
+        final datelover = note["date"].toLowerCase();
         final queryLower = query.toLowerCase();
 
         return titleLower.contains(queryLower) ||
+            datelover.contains(queryLower) ||
             descriptionLower.contains(queryLower);
       }).toList();
     });
@@ -55,13 +59,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: Text("Note Book"),
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
       ),
+      backgroundColor: Colors.white,
       body: newlist.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Text(
+              "Not found",
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+            ))
           : Column(
               children: [
                 Padding(
@@ -100,6 +108,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     foregroundColor: Colors.white,
                                     child: Text("${index + 1}"),
                                   ),
+                                  onTap: () {
+                                    Navigator.push(
+                                            context,
+                                            PageTransition(
+                                                child: NoteDetailScreen(
+                                                  title: filteredList[index]
+                                                      ["title"],
+                                                  description:
+                                                      filteredList[index]
+                                                          ["description"],
+                                                ),
+                                                type: PageTransitionType
+                                                    .rightToLeftWithFade))
+                                        .then(
+                                      (value) {
+                                        getdata();
+                                      },
+                                    );
+                                  },
                                   title: Text(
                                     filteredList[index]["title"],
                                     style: TextStyle(
@@ -129,19 +156,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                     IconButton(
                                       onPressed: () {
                                         Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => UpdateScreen(
-                                              title: filteredList[index]
-                                                  ["title"],
-                                              decsriprion: filteredList[index]
-                                                  ["description"],
-                                              id: filteredList[index]["id"],
-                                            ),
-                                          ),
-                                        ).then((value) {
-                                          getdata(); // Refresh data after update
-                                        });
+                                                context,
+                                                PageTransition(
+                                                    child: UpdateScreen(
+                                                      title: filteredList[index]
+                                                          ["title"],
+                                                      decsriprion:
+                                                          filteredList[index]
+                                                              ["description"],
+                                                      id: filteredList[index]
+                                                          ["id"],
+                                                    ),
+                                                    type: PageTransitionType
+                                                        .rightToLeftWithFade))
+                                            .then(
+                                          (value) {
+                                            getdata();
+                                          },
+                                        );
                                       },
                                       icon: Icon(Icons.edit),
                                     ),
@@ -151,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           context: context,
                                           builder: (context) {
                                             return AlertDialog(
+                                              backgroundColor: Colors.white,
                                               title: Text("Delete Notes"),
                                               content: Text(
                                                 "Are you sure?",
@@ -218,13 +251,15 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         onPressed: () {
           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => InsertScreen(),
-            ),
-          ).then((value) {
-            getdata(); // Refresh data after adding
-          });
+                  context,
+                  PageTransition(
+                      child: InsertScreen(),
+                      type: PageTransitionType.rightToLeftWithFade))
+              .then(
+            (value) {
+              getdata();
+            },
+          );
         },
         label: Text("Add"),
         icon: Icon(Icons.add),

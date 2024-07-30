@@ -33,6 +33,7 @@ class _InsertScreenState extends State<InsertScreen> {
         backgroundColor: Colors.deepPurple.shade500,
         title: Text("Add Notes"),
       ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(18.0),
         child: SingleChildScrollView(
@@ -40,7 +41,7 @@ class _InsertScreenState extends State<InsertScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
                   style: TextStyle(fontSize: 20),
                   controller: titlecontroller,
@@ -49,28 +50,25 @@ class _InsertScreenState extends State<InsertScreen> {
                         fontSize: 22,
                       ),
                       hintText: "Title",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                      border: null),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(10.0),
                 child: TextFormField(
                   style: TextStyle(fontSize: 20),
                   controller: decsriptioncontroller,
                   maxLines: 5,
                   decoration: InputDecoration(
-                    hintText: "Notes",
-                    hintStyle: TextStyle(
-                      fontSize: 22,
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
+                      hintText: "Notes",
+                      hintStyle: TextStyle(
+                        fontSize: 22,
+                      ),
+                      border: null),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 child: TextFormField(
                   onTap: () async {
                     DateTime? datepick = await showDatePicker(
@@ -92,11 +90,9 @@ class _InsertScreenState extends State<InsertScreen> {
                   readOnly: true,
                   controller: datecontoller,
                   decoration: InputDecoration(
-                    hintText: "Date",
-                    suffixIcon: Icon(Icons.date_range),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
+                      hintText: "Date",
+                      suffixIcon: Icon(Icons.date_range),
+                      border: null),
                 ),
               ),
               Padding(

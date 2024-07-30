@@ -51,7 +51,11 @@ class _UpdateScreenState extends State<UpdateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.deepPurple.shade500,
+        foregroundColor: Colors.white,
+      ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(18.0),
         child: SingleChildScrollView(
@@ -59,7 +63,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
                   controller: titlecontroller,
                   decoration: InputDecoration(
@@ -67,27 +71,24 @@ class _UpdateScreenState extends State<UpdateScreen> {
                         fontSize: 25,
                       ),
                       hintText: "Title",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                      border: null),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
                   controller: decsriptioncontroller,
                   maxLines: 5,
                   decoration: InputDecoration(
-                    hintText: "Notes",
-                    hintStyle: TextStyle(
-                      fontSize: 25,
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
+                      hintText: "Notes",
+                      hintStyle: TextStyle(
+                        fontSize: 25,
+                      ),
+                      border: null),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 child: TextFormField(
                   onTap: () async {
                     DateTime? datepick = await showDatePicker(
@@ -111,8 +112,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                   decoration: InputDecoration(
                     hintText: "Date",
                     suffixIcon: Icon(Icons.date_range),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                    border: null,
                   ),
                 ),
               ),
