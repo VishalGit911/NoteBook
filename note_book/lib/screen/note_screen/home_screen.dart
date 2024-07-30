@@ -12,27 +12,43 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> newlist = [];
+  List<Map<String, dynamic>> filteredList = [];
+  String searchQuery = "";
+
   @override
   void initState() {
-    getdata();
     super.initState();
+    getdata();
   }
 
-  List<Map<String, dynamic>> newlist = [];
-
-  Future<Database> getdata() async {
+  Future<void> getdata() async {
     Database db = await DatabaseHelper.dbHelper();
     newlist = await db.rawQuery("SELECT * FROM notes");
-
-    return db;
+    filteredList = newlist;
+    setState(() {}); // Ensure UI updates once data is fetched
   }
 
   Future<void> deletedata(String title) async {
     Database db = await DatabaseHelper.dbHelper();
-    db.delete("notes", where: "title= ?", whereArgs: [title]);
+    await db.delete("notes", where: "title= ?", whereArgs: [title]);
 
     newlist = await db.rawQuery("SELECT * FROM notes");
-    setState(() {});
+    updateSearchQuery(searchQuery); // Update the filtered list
+  }
+
+  void updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query;
+      filteredList = newlist.where((note) {
+        final titleLower = note["title"].toLowerCase();
+        final descriptionLower = note["description"].toLowerCase();
+        final queryLower = query.toLowerCase();
+
+        return titleLower.contains(queryLower) ||
+            descriptionLower.contains(queryLower);
+      }).toList();
+    });
   }
 
   @override
@@ -44,182 +60,159 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder(
-        future: getdata(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text("Error: ${snapshot.error}"),
-            );
-          } else if (snapshot.hasData) {
-            return Container(
-              height: double.infinity,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          hintText: "Search note",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15))),
+      body: newlist.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: TextFormField(
+                    onChanged: (query) => updateSearchQuery(query),
+                    decoration: InputDecoration(
+                      hintText: "Search note",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                     ),
                   ),
-                  Expanded(
-                    flex: 9,
-                    child: ListView.builder(
-                      itemCount: newlist.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                              top: 3, left: 10, right: 10, bottom: 5),
-                          child: Card(
-                            shadowColor: Colors.black,
-                            elevation: 8,
-                            color: Colors.grey.shade200,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor:
-                                          Colors.deepPurple.shade500,
-                                      foregroundColor: Colors.white,
-                                      child: Text("${index + 1}"),
-                                    ),
-                                    title: Text(
-                                      newlist[index]["title"],
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    subtitle: Text(
-                                      newlist[index]["description"],
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 16),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                            top: 3, left: 10, right: 10, bottom: 5),
+                        child: Card(
+                          shadowColor: Colors.black,
+                          elevation: 8,
+                          color: Colors.grey.shade200,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.deepPurple.shade500,
+                                    foregroundColor: Colors.white,
+                                    child: Text("${index + 1}"),
+                                  ),
+                                  title: Text(
+                                    filteredList[index]["title"],
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Divider(
-                                    color: Colors.grey,
+                                  subtitle: Text(
+                                    filteredList[index]["description"],
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text(
-                                        newlist[index]["date"].toString(),
-                                        style: TextStyle(fontSize: 18),
-                                      ),
-                                      IconButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      UpdateScreen(
-                                                    title: newlist[index]
-                                                        ["title"],
-                                                    decsriprion: newlist[index]
-                                                        ["description"],
-                                                    id: newlist[index]["id"],
-                                                  ),
-                                                )).then(
-                                              (value) {
-                                                setState(() {});
-                                              },
+                                ),
+                                Divider(color: Colors.grey),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Text(
+                                      filteredList[index]["date"].toString(),
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => UpdateScreen(
+                                              title: filteredList[index]
+                                                  ["title"],
+                                              decsriprion: filteredList[index]
+                                                  ["description"],
+                                              id: filteredList[index]["id"],
+                                            ),
+                                          ),
+                                        ).then((value) {
+                                          getdata(); // Refresh data after update
+                                        });
+                                      },
+                                      icon: Icon(Icons.edit),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text("Delete Notes"),
+                                              content: Text(
+                                                "Are you sure?",
+                                                style: TextStyle(fontSize: 18),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("Cancel"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    deletedata(
+                                                            filteredList[index]
+                                                                ["title"])
+                                                        .then((value) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          backgroundColor:
+                                                              Colors.deepPurple
+                                                                  .shade500,
+                                                          margin:
+                                                              EdgeInsets.all(5),
+                                                          behavior:
+                                                              SnackBarBehavior
+                                                                  .floating,
+                                                          content: Text(
+                                                            "Notes deleted successfully",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        ),
+                                                      );
+                                                      Navigator.pop(context);
+                                                    });
+                                                  },
+                                                  child: Text("Ok"),
+                                                ),
+                                              ],
                                             );
                                           },
-                                          icon: Icon(Icons.edit)),
-                                      IconButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return AlertDialog(
-                                                  title: Text("Delete Notes"),
-                                                  content: Text(
-                                                    "Are you sure?",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Text("Cancel")),
-                                                    TextButton(
-                                                        onPressed: () {
-                                                          deletedata(
-                                                                  newlist[index]
-                                                                      ["title"])
-                                                              .then(
-                                                            (value) {
-                                                              SnackBar snack =
-                                                                  SnackBar(
-                                                                      backgroundColor: Colors
-                                                                          .deepPurple
-                                                                          .shade500,
-                                                                      margin: EdgeInsets
-                                                                          .all(
-                                                                              5),
-                                                                      behavior:
-                                                                          SnackBarBehavior
-                                                                              .floating,
-                                                                      content:
-                                                                          Text(
-                                                                        "Notes delete successfully",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white),
-                                                                      ));
-                                                              ScaffoldMessenger
-                                                                      .of(
-                                                                          context)
-                                                                  .showSnackBar(
-                                                                      snack);
-
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                          );
-                                                        },
-                                                        child: Text("Ok"))
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                          icon: Icon(Icons.delete))
-                                    ],
-                                  )
-                                ],
-                              ),
+                                        );
+                                      },
+                                      icon: Icon(Icons.delete),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
-            );
-          } else {
-            return Center(child: Container());
-          }
-        },
-      ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.deepPurple.shade500,
         foregroundColor: Colors.white,
@@ -229,11 +222,9 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(
               builder: (context) => InsertScreen(),
             ),
-          ).then(
-            (value) {
-              setState(() {});
-            },
-          );
+          ).then((value) {
+            getdata(); // Refresh data after adding
+          });
         },
         label: Text("Add"),
         icon: Icon(Icons.add),
