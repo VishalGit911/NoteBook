@@ -16,17 +16,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     getdata();
     super.initState();
-searchController.addListener(searchQuery());
   }
 
   List<Map<String, dynamic>> newlist = [];
-  List<Map<String, dynamic>> filteredList = [];
 
   Future<Database> getdata() async {
     Database db = await DatabaseHelper.dbHelper();
     newlist = await db.rawQuery("SELECT * FROM notes");
 
-    filteredList = newlist;
     return db;
   }
 
@@ -36,17 +33,6 @@ searchController.addListener(searchQuery());
 
     newlist = await db.rawQuery("SELECT * FROM notes");
     setState(() {});
-  }
-  TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
-  void serachquery(String query) {
-    String query = searchController.text.toLowerCase();
-    searchQuery = query;
-    filteredList = newlist
-        .where((note) =>
-            note["title"].toLowerCase().contains(query.toLowerCase()) ||
-            note["date"].toString().contains(query))
-        .toList();
   }
 
   @override
@@ -78,7 +64,6 @@ searchController.addListener(searchQuery());
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: TextFormField(
-                      onChanged: (value) => serachquery(value),
                       decoration: InputDecoration(
                           hintText: "Search note",
                           prefixIcon: Icon(Icons.search),
@@ -111,14 +96,14 @@ searchController.addListener(searchQuery());
                                       child: Text("${index + 1}"),
                                     ),
                                     title: Text(
-                                      filteredList[index]["title"],
+                                      newlist[index]["title"],
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500),
                                     ),
                                     subtitle: Text(
-                                      filteredList[index]["description"],
+                                      newlist[index]["description"],
                                       maxLines: 1,
                                       style: TextStyle(
                                           color: Colors.black, fontSize: 16),
@@ -132,7 +117,7 @@ searchController.addListener(searchQuery());
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       Text(
-                                        filteredList[index]["date"].toString(),
+                                        newlist[index]["date"].toString(),
                                         style: TextStyle(fontSize: 18),
                                       ),
                                       IconButton(
@@ -142,13 +127,11 @@ searchController.addListener(searchQuery());
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       UpdateScreen(
-                                                    title: filteredList[index]
+                                                    title: newlist[index]
                                                         ["title"],
-                                                    decsriprion:
-                                                        filteredList[index]
-                                                            ["description"],
-                                                    id: filteredList[index]
-                                                        ["id"],
+                                                    decsriprion: newlist[index]
+                                                        ["description"],
+                                                    id: newlist[index]["id"],
                                                   ),
                                                 )).then(
                                               (value) {
@@ -179,8 +162,7 @@ searchController.addListener(searchQuery());
                                                     TextButton(
                                                         onPressed: () {
                                                           deletedata(
-                                                                  filteredList[
-                                                                          index]
+                                                                  newlist[index]
                                                                       ["title"])
                                                               .then(
                                                             (value) {
