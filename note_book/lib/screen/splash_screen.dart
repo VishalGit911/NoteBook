@@ -1,7 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:note_book/screen/note_screen/home_screen.dart';
+import 'package:note_book/screen/home_screen.dart';
+import 'package:note_book/screen/onboarding/onboarding_screen.dart';
+import 'package:note_book/services/shared_preferance.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeScreen(),
+              builder: (context) => OnBoardingBodyScreen(),
             ));
       },
     );
@@ -33,15 +34,17 @@ class _SplashScreenState extends State<SplashScreen> {
         height: double.infinity,
         decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
-          Colors.deepPurple.shade900,
-          Colors.deepPurple.shade800,
-          Colors.deepPurple.shade700,
+          Colors.blue.shade600,
+          Colors.blue.shade700,
+          Colors.blue.shade900,
         ])),
         width: double.infinity,
         child: Center(
-          child: Text(
-            "Note Book",
-            style: TextStyle(color: Colors.white, fontSize: 30),
+          child: Image(
+            image: AssetImage("assets/images/logo.png"),
+            color: Colors.white,
+            height: 180,
+            width: 180,
           ),
         ),
       ),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:note_book/screen/splash_screen.dart';
+import 'package:note_book/services/shared_preferance.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
+  SharedPreferenceServices.oninit();
   runApp(const MyApp());
 }
 

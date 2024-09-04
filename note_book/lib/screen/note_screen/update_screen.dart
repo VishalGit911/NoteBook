@@ -52,7 +52,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple.shade500,
+        backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
@@ -62,30 +62,24 @@ class _UpdateScreenState extends State<UpdateScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextFormField(
-                  controller: titlecontroller,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        fontSize: 25,
-                      ),
-                      hintText: "Title",
-                      border: null),
-                ),
+              TextFormField(
+                controller: titlecontroller,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(
+                      fontSize: 25,
+                    ),
+                    hintText: "Title",
+                    border: OutlineInputBorder(borderSide: BorderSide.none)),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextFormField(
-                  controller: decsriptioncontroller,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                      hintText: "Notes",
-                      hintStyle: TextStyle(
-                        fontSize: 25,
-                      ),
-                      border: null),
-                ),
+              TextFormField(
+                controller: decsriptioncontroller,
+                maxLines: 5,
+                decoration: InputDecoration(
+                    hintText: "Notes",
+                    hintStyle: TextStyle(
+                      fontSize: 25,
+                    ),
+                    border: OutlineInputBorder(borderSide: BorderSide.none)),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
@@ -96,6 +90,25 @@ class _UpdateScreenState extends State<UpdateScreen> {
                       firstDate: DateTime(2001),
                       lastDate: DateTime(2050),
                       initialDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                            data: Theme.of(context).copyWith(
+                              // override MaterialApp ThemeData
+                              colorScheme: ColorScheme.light(
+                                primary: Colors
+                                    .blue, //header and selced day background color
+                                onPrimary: Colors.white, // titles and
+                                onSurface: Colors.black, // Month days , years
+                              ),
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Colors.blue, // ok , cancel    buttons
+                                ),
+                              ),
+                            ),
+                            child: child!);
+                      },
                     );
 
                     if (datepick != null) {
@@ -111,8 +124,16 @@ class _UpdateScreenState extends State<UpdateScreen> {
                   controller: datecontoller,
                   decoration: InputDecoration(
                     hintText: "Date",
-                    suffixIcon: Icon(Icons.date_range),
-                    border: null,
+                    suffixIcon: Icon(
+                      Icons.date_range,
+                      color: Colors.blue.shade700,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderRadius: BorderRadius.circular(10)),
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ),
@@ -125,7 +146,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             fixedSize: Size(300, 50),
-                            backgroundColor: Colors.deepPurple.shade500,
+                            backgroundColor: Colors.blue.shade700,
                             foregroundColor: Colors.white),
                         onPressed: () {
                           updatedate(

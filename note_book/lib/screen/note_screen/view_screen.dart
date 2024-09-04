@@ -14,7 +14,7 @@ class NoteDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple.shade500,
+        backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,

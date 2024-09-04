@@ -1,5 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:note_book/screen/note_screen/home_screen.dart';
+import 'package:note_book/screen/home_screen.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../sqflight/database_helper.dart';
@@ -30,7 +31,7 @@ class _InsertScreenState extends State<InsertScreen> {
       appBar: AppBar(
         centerTitle: true,
         foregroundColor: Colors.white,
-        backgroundColor: Colors.deepPurple.shade500,
+        backgroundColor: Colors.blue.shade700,
         title: Text("Add Notes"),
       ),
       backgroundColor: Colors.white,
@@ -40,32 +41,26 @@ class _InsertScreenState extends State<InsertScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextFormField(
-                  style: TextStyle(fontSize: 20),
-                  controller: titlecontroller,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        fontSize: 22,
-                      ),
-                      hintText: "Title",
-                      border: null),
-                ),
+              TextFormField(
+                style: TextStyle(fontSize: 20),
+                controller: titlecontroller,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(
+                      fontSize: 22,
+                    ),
+                    hintText: "Title",
+                    border: OutlineInputBorder(borderSide: BorderSide.none)),
               ),
-              Padding(
-                padding: EdgeInsets.all(10.0),
-                child: TextFormField(
-                  style: TextStyle(fontSize: 20),
-                  controller: decsriptioncontroller,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                      hintText: "Notes",
-                      hintStyle: TextStyle(
-                        fontSize: 22,
-                      ),
-                      border: null),
-                ),
+              TextFormField(
+                style: TextStyle(fontSize: 20),
+                controller: decsriptioncontroller,
+                maxLines: 5,
+                decoration: InputDecoration(
+                    hintText: "Notes",
+                    hintStyle: TextStyle(
+                      fontSize: 22,
+                    ),
+                    border: OutlineInputBorder(borderSide: BorderSide.none)),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
@@ -76,6 +71,25 @@ class _InsertScreenState extends State<InsertScreen> {
                       firstDate: DateTime(2001),
                       lastDate: DateTime(2050),
                       initialDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                            data: Theme.of(context).copyWith(
+                              // override MaterialApp ThemeData
+                              colorScheme: ColorScheme.light(
+                                primary: Colors
+                                    .blue, //header and selced day background color
+                                onPrimary: Colors.white, // titles and
+                                onSurface: Colors.black, // Month days , years
+                              ),
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Colors.blue, // ok , cancel    buttons
+                                ),
+                              ),
+                            ),
+                            child: child!);
+                      },
                     );
 
                     if (datepick != null) {
@@ -90,9 +104,18 @@ class _InsertScreenState extends State<InsertScreen> {
                   readOnly: true,
                   controller: datecontoller,
                   decoration: InputDecoration(
-                      hintText: "Date",
-                      suffixIcon: Icon(Icons.date_range),
-                      border: null),
+                    hintText: "Date",
+                    suffixIcon: Icon(
+                      Icons.date_range,
+                      color: Colors.blue.shade700,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderRadius: BorderRadius.circular(10)),
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ),
               Padding(
@@ -104,7 +127,7 @@ class _InsertScreenState extends State<InsertScreen> {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             fixedSize: Size(300, 50),
-                            backgroundColor: Colors.deepPurple.shade500,
+                            backgroundColor: Colors.blue.shade700,
                             foregroundColor: Colors.white),
                         onPressed: () {
                           insertData(
